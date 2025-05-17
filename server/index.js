@@ -23,12 +23,11 @@ app.use(express.json())
 app.use("/api", apiRoutes)
 app.use("/info", infoRoutes)
 
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, '../client')));
+//Usa la ruta correcta a tu frontend
+app.use(express.static(path.join(__dirname, 'client')));
 
-// Para cualquier ruta que no sea API, servir index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/index.html'));
+  res.sendFile(path.join(__dirname, 'client/index.html'));
 });
 
 // Ruta de prueba
