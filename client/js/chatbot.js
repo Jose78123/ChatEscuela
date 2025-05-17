@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const preguntasFrecuentesList = document.getElementById("preguntas-frecuentes-list")
 
   // URL de la API del backend
-  const API_URL = window.ENV?.CHATBOT_API_URL || "http://localhost:3000/api/chatbot"
-  const API_BASE_URL = window.ENV?.API_BASE_URL || "http://localhost:3000/api/"
+  const API_URL = "/api/chatbot"
+  const API_BASE_URL = "/api"
 
   // Identificador de sesión para mantener el contexto de la conversación
   let sessionId = localStorage.getItem("chatSessionId") || generateSessionId()
@@ -262,12 +262,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const messageDiv = document.createElement("div")
       messageDiv.className = `flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-4`
 
-      const innerHtml = `
+      // Mensaje colapsable si es muy largo
+      const isLong = message.content.length > 400;
+      const shortContent = isLong ? message.content.slice(0, 400) + '...' : message.content;
+      const expanded = false;
+      messageDiv.innerHTML = `
         <div class="flex items-start max-w-[80%]">
           ${
             message.role === "assistant"
-              ? `
-            <div class="mr-2 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+              ? `<div class="mr-2 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
                 <path d="M12 8V4H8"></path>
                 <rect width="16" height="12" x="4" y="8" rx="2"></rect>
@@ -276,35 +279,48 @@ document.addEventListener("DOMContentLoaded", () => {
                 <path d="M15 13v2"></path>
                 <path d="M9 13v2"></path>
               </svg>
-            </div>
-          `
+                </div>`
               : ""
           }
-          
           <div class="${message.role === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800"} rounded-lg p-3">
-            <div class="whitespace-pre-line">${message.content}</div>
+            <div class="message-content${isLong ? '' : ' expanded'}">${shortContent}</div>
+            ${isLong ? '<span class="show-more">Ver más</span>' : ''}
             <div class="${message.role === "user" ? "text-blue-100" : "text-gray-500"} text-xs mt-1">
               ${message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </div>
           </div>
-          
           ${
             message.role === "user"
-              ? `
-            <div class="ml-2 h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
+              ? `<div class="ml-2 h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-            </div>
-          `
+                </div>`
               : ""
           }
         </div>
       `
-
-      messageDiv.innerHTML = innerHtml
       chatMessages.appendChild(messageDiv)
+
+      // Agregar funcionalidad Ver más/Ver menos
+      if (isLong) {
+        const msgContent = messageDiv.querySelector('.message-content');
+        const showMore = messageDiv.querySelector('.show-more');
+        let expanded = false;
+        showMore.addEventListener('click', () => {
+          expanded = !expanded;
+          if (expanded) {
+            msgContent.textContent = message.content;
+            msgContent.classList.add('expanded');
+            showMore.textContent = 'Ver menos';
+          } else {
+            msgContent.textContent = shortContent;
+            msgContent.classList.remove('expanded');
+            showMore.textContent = 'Ver más';
+          }
+        });
+      }
     })
 
     // Scroll al final

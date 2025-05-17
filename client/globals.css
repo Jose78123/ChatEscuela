@@ -92,3 +92,39 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+#chat-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+#chat-form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+  z-index: 10;
+}
+.message-content {
+  max-height: 120px;
+  overflow: hidden;
+  position: relative;
+}
+.message-content.expanded {
+  max-height: none;
+}
+.show-more {
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 0.9em;
+  display: block;
+  margin-top: 4px;
+}
